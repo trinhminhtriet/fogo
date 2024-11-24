@@ -1,0 +1,40 @@
+[package]
+name = "fogo"
+version = "0.1.0"
+authors = ["Triet Trinh <contact@trinhminhtriet.com>"]
+edition = "2018"
+description = "📂 Fogo: A fast terminal file explorer replacing cd and ls for quick folder navigation."
+license = "MIT"
+repository = "https://github.com/trinhminhtriet/fogo/"
+keywords = ["tui", "terminal", "file", "explorer", "navigation"]
+categories = ["command-line-utilities"]
+readme = "README.md"
+homepage = "https://trinhminhtriet.com/"
+
+
+[dependencies]
+crossterm = "0.24.0"
+dirs = "5.0"
+regex = "1.10"
+serde_json = "1.0"
+serde = { version = "1.0", features = ["rc"] }
+textwrap = "0.16"
+unicode-segmentation = "1.12"
+crokey = "0.5"
+strum_macros = "0.26"
+strum = { version = "0.26", features = ["derive"] }
+
+[dependencies.clap]
+version = "4"
+default-features = false
+features = ["wrap_help", "suggestions", "std", "derive", "usage"]
+
+[dev-dependencies]
+tempfile = "3.12"
+
+[target.'cfg(unix)'.dev-dependencies]
+rexpect = "0.5"
+
+[profile.release]
+lto = true
+strip = "debuginfo"
