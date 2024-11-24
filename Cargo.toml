@@ -30,7 +30,7 @@ default-features = false
 features = ["wrap_help", "suggestions", "std", "derive", "usage"]
 
 [dev-dependencies]
-tempfile = "3.12"
+tempfile = "3.14"
 
 [target.'cfg(unix)'.dev-dependencies]
 rexpect = "0.5"
