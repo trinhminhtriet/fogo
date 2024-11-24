@@ -173,48 +173,96 @@ If `fogo` is not in your `PATH`, use an absolute path to the fogo binary in your
 
 Some of the shortcuts starting with <kbd>Alt</kbd> should be familiar to Vim users.
 
-#### Customizing keyboard shortcuts
+### **Customizing Keyboard Shortcuts**
 
-All of the keyboard shortcuts listed above can be customized using the `--map` (or `-m`) CLI option. Keyboard mappings can be either of the form `--map key-combination:action` or `--map key-combination:context:action`, where `key-combination` is a key combination, such as `ctrl-x`, `action` is a valid action name (for example `Exit` or `ChangeDir`, see the table above or `--help` for a full list of actions), and the optional `context` specifies the context in which the mappling applies (for example `Searching` and `NotSearching`, see `--help`). To remove a mapping, use `--map key-combination:None`. Multiple mappings can be made by providing `--map` multiple times, or by using a comma-separated list of mappings: `--map combination1:action1,combination2:action2`.
+Keyboard shortcuts in `fogo` can be customized using the `--map` (or `-m`) command-line option. Mappings follow these formats:
 
-For further details and examples, see the output of `--help`.
+- **Basic Mapping**: `--map key-combination:action`
+- **Contextual Mapping**: `--map key-combination:context:action`
+- **Key Combination (`key-combination`)**: Specifies a key or combination, e.g., `ctrl-x`.
+- **Action (`action`)**: Represents a predefined operation such as `Exit` or `ChangeDir` (refer to the `--help` output or documentation for a full list).
+- **Context (`context`)**: Optional, determines when the mapping applies, e.g., `Searching` or `NotSearching`.
 
-### Searching
+To **remove a mapping**, specify `None` as the action:
 
-To search for an item in the current folder, just type some letters. `fogo` will incrementally highlight all folders that match the search query.
+```bash
+--map key-combination:None
+```
 
-While searching, moving the cursor up or down jumps between only the items that match the search. The search query, as well as the number of matching items is shown at the bottom of the screen.
+You can define multiple mappings by:
 
-If only one folder matches your current search, `fogo` will highlight it, and change the working directory to that folder. This way you can navigate folders very quickly.
+1. Repeating the `--map` option:
+   ```bash
+   --map combination1:action1 --map combination2:action2
+   ```
+2. Using a comma-separated list:
+   ```bash
+   --map combination1:action1,combination2:action2
+   ```
 
-To stop searching, press <kbd>Esc</kbd> or erase all search characters by pressing <kbd>Backspace</kbd>.
+For additional examples and a full list of actions, use the `--help` option.
 
-Note that by default, `fogo` searches only folders and not files, since `fogo` cannot do anything with files. This can be changed with the `--files` option. For further details, see below, or check the output of `--help`.
+---
 
-By default, the searching uses "smart case", meaning that if the query contains only lowercase letters, case is ignored, but if there are uppercase letters, the search is case sensitive. This can be changed with the `--ignore-case` and `--case-sensitive` options, or with the keyboard shortcut <kbd>Alt</kbd>-<kbd>c</kbd> by default.
+### **Searching**
 
-Additionally, in the default search mode, "gap search" (sometimes also known as fuzzy search) is enabled. This means that the search matches any folder name as long as it starts with the same character as the search query, and contains the rest of the query characters, even if there are other characters between them. For example, searching for `dt` would match both `DeskTop` and `DocumenTs`. With the `--gap-search-anywhere` option, the first character of the query doesn't have to match the first character of a folder/file name. The gap search can be disabled with the `--normal-search` and `--normal-search-anywhere` options, which only allow matching consecutive characters, either from the start or anywhere within the folder/file name, respsectively. The gap search behavior can also be changed with the keyboard shortcut <kbd>Ctrl</kbd>-<kbd>f</kbd> by default. See `--help` for details.
+`fogo` enables fast folder navigation with its incremental search feature. Simply type to begin searching for items in the current directory. Matching results are highlighted dynamically, and navigation is limited to those matches. Key behaviors include:
 
-### Mouse navigation
+- **Real-time Feedback**: Displays the search query and number of matches at the bottom of the screen.
+- **Single Match Optimization**: If only one folder matches, it is auto-highlighted, and the working directory updates to it.
+- **Stopping Search**: Press <kbd>Esc</kbd> or use <kbd>Backspace</kbd> to clear the search query.
 
-Although `fogo` is mainly keyboard-focused, it is also possible to navigate using the mouse. To maximize compatibility, mouse support is off by default, and has to be enabled with the option `--mouse=on`. With the mouse enabled, you can change to a folder by clicking on it, and move to the parent folder by right-clicking.
+**Default Behavior**:
 
-### CLI options
+- `fogo` searches **folders only**, as it cannot operate on files. Use the `--files` option to modify this behavior.
+- **Case Sensitivity**: By default, "smart case" is enabled:
+  - Lowercase queries ignore case (case-insensitive).
+  - Uppercase queries are case-sensitive.  
+    Customize this behavior with `--ignore-case`, `--case-sensitive`, or toggle it with <kbd>Alt</kbd>-<kbd>c</kbd>.
 
-You can adjust the behavior of `fogo` by passing the following CLI options to it:
+**Search Modes**:
 
-- `--help` or `-h`: Print a short help and all CLI options. Note that the output goes to stderr, to not interfere with `cd` ing in the shell functions defined during the setup.
-- `--version` or `-V`: Print the version of `fogo`. This also goes to stderr.
-- `--filter-search` or `-f` / `--no-filter-search` or `-F`: If `--filter-search` is set, show only items that match the current search query in the listing. Otherwise all items are shown in the listing while searching (this is the default behavior).
-- `--files` or `-l ignore` / `hide` / `match` (or `i` / `h` / `m`): How to handle files while searching. If `ignore` (the default), only folders are searched / matched. If `hide`, files are hidden and only folders shown and matched, and if `match`, both files and folders are matched. Note that currently `fogo` cannot do anything with files, so searching for a file name with `--files=match` is mostly only useful for checking whether a file can be found in the current folder.
-- `--smart-case` or `-S` / `--ignore-case` or `-i` / `--case-sensitive` or `-s`: Set the case sensitivity mode. The default mode is smart case, which is case insensitive if the query contains only lowercase letters and case sensitive otherwise.
-- `--gap-search` or `-g` / `--gap-search-anywhere` or `-G` / `--normal-search` or `-n` / `--normal-search-anywhere` or `-N`: Configure whether to allow matches with gaps in them (see above).
-- `--sort name` / `created` / `modified`: Change the sorting order of the listing.
-- `--autocd-timeout` - If the current search matches only one folder, automatically change to that folder after this many milliseconds. Can also be set to `off`, which disables this behaviour.
-- `--history-file`: To make browsing more convenient, `fogo` saves a history of folders you have visited to this file in JSON format. It should be an absolute path. Defaults to `$CACHE_DIR/fogo/history.json`, where `$CACHE_DIR` is `$XDG_CACHE_HOME` or `~/.cache`. Set to the empty string `''` to disable saving the history. Note that the history reveals parts of your folder structure if it can be read by someone else.
-- `--mouse=on` or `--mouse=off`: Enable or disable navigating with the mouse. If enabled, you can left-click to enter folders and right-click to go to the parent folder. Off by default.
+- **Gap Search** (default): Matches folder names even if query characters are non-consecutive. For instance, `dt` matches both `DeskTop` and `DocumenTs`.
+- **Gap Search Variants**:
+  - `--gap-search-anywhere`: Allows matches even if the first query character doesn’t align with the folder name’s start.
+  - Disable gap search with `--normal-search` or `--normal-search-anywhere` to enforce strict matching of consecutive characters.
 
-Some options have two or more versions that override each other (for example `--filter-search` and `--no-filter-search`). For such options, whichever is passed last wins. This way, you can have one option as the default in your shell's `rc` file, but you can sometimes manually override that option when running `fogo`.
+Toggle search modes dynamically using <kbd>Ctrl</kbd>-<kbd>f</kbd>.
+
+---
+
+### **Mouse Navigation**
+
+While `fogo` is optimized for keyboard use, it supports mouse navigation when enabled via `--mouse=on`.
+
+- **Left Click**: Enter a folder.
+- **Right Click**: Move to the parent folder.
+
+Mouse navigation is disabled by default for compatibility.
+
+---
+
+### **CLI Options**
+
+`fogo` offers various options to customize its behavior:
+
+- `--help`, `-h`: Display a help summary and available options (output to `stderr`).
+- `--version`, `-V`: Show the current version of `fogo`.
+- `--filter-search`, `-f` / `--no-filter-search`, `-F`: Choose whether to show only matching items (`--filter-search`) or all items (`--no-filter-search`) while searching.
+- `--files`, `-l ignore/hide/match`: Configure file handling during search:
+  - `ignore` (default): Searches folders only.
+  - `hide`: Displays folders but hides files.
+  - `match`: Matches both files and folders (useful for verifying file presence).
+- `--smart-case`, `-S` / `--ignore-case`, `-i` / `--case-sensitive`, `-s`: Configure case sensitivity.
+- `--gap-search`, `-g` / `--gap-search-anywhere`, `-G` / `--normal-search`, `-n` / `--normal-search-anywhere`, `-N`: Customize search behavior (see _Searching_ above).
+- `--sort name/created/modified`: Change sorting criteria for listed items.
+- `--autocd-timeout`: Automatically navigate to a matching folder after a specified timeout in milliseconds (use `off` to disable).
+- `--history-file`: Define the path to save folder navigation history (default: `$CACHE_DIR/fogo/history.json`). Set to `''` to disable saving history.
+- `--mouse=on/off`: Enable or disable mouse navigation.
+
+For options with opposing flags (e.g., `--filter-search` vs. `--no-filter-search`), the last specified option takes precedence. This allows default settings in shell configuration files while permitting overrides during runtime.
+
+For more detailed information, refer to `--help`.
 
 ## 🤝 How to contribute
 
