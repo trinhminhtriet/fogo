@@ -1,14 +1,10 @@
-/// Functions for rendering the help window
-use std::collections::HashMap;
-use crossterm::{
-    style::StyledContent,
-    event::KeyEvent,
-};
 use crate::ui::{
     markup_render::{wrap_and_stylize, README_STR},
     Action, ActionContext,
 };
-
+use crossterm::{event::KeyEvent, style::StyledContent};
+/// Functions for rendering the help window
+use std::collections::HashMap;
 
 /// Word-wrap the help string to be displayed in the help window, and apply correct formatting
 /// (such as bolding) using crossterm::style.
@@ -20,11 +16,9 @@ pub fn get_formatted_help_text(
     width: usize,
     key_mapping: &HashMap<(KeyEvent, ActionContext), Action>,
 ) -> Vec<Vec<StyledContent<String>>> {
-    let help_str = &README_STR[
-        README_STR.find("## User guide").expect("Could not find user guide in README")
-        ..
-        README_STR.find("## Similar projects").expect("Could not find end of user guide in README")
-    ];
+    let help_str = &README_STR[README_STR
+        .find("Usage")
+        .expect("Could not find Usage in README")..];
 
     // Skip the table of keyboard shortcuts, we'll format it separately
     let (help_str, rest) = help_str
@@ -44,18 +38,18 @@ pub fn get_formatted_help_text(
 
     let rest = rest
         // Remove mention of 'vim-like' shortcuts, it might not apply if the user has customized them.
-        .split('\n').filter(|line| !line.contains("should be familiar to")).collect::<Vec<_>>().join("\n");
+        .split('\n')
+        .filter(|line| !line.contains("should be familiar to"))
+        .collect::<Vec<_>>()
+        .join("\n");
     help_str.push_str(&rest);
 
     // We need to get rid of the `<kbd>` tags before wrapping so it works correctly. We're going to
     // bold all words within backticks, so replace the tags with backticks as well.
-    let help_str = help_str
-        .replace("<kbd>",  "`")
-        .replace("</kbd>", "`");
+    let help_str = help_str.replace("<kbd>", "`").replace("</kbd>", "`");
 
     wrap_and_stylize(&help_str, width)
 }
-
 
 /// Extract the table of keyboard shortcuts from the README. Panics if the README is incorrectly
 /// formatted.
@@ -179,15 +173,14 @@ fn invert_key_mapping_sorted(
     for (_, mappings) in key_mapping_inv.iter_mut() {
         mappings.sort_unstable_by(|(k1, c1), (k2, c2)| match (c1, c2) {
             (ActionContext::None, ActionContext::None) => cmp_key_events(k1, k2),
-            (_,                   ActionContext::None) => std::cmp::Ordering::Greater,
-            (ActionContext::None,                   _) => std::cmp::Ordering::Less,
+            (_, ActionContext::None) => std::cmp::Ordering::Greater,
+            (ActionContext::None, _) => std::cmp::Ordering::Less,
             (_, _) => c1.to_string().cmp(&c2.to_string()),
         })
     }
 
     key_mapping_inv
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -241,11 +234,17 @@ mod tests {
             });
 
             let key_combos: Vec<_> = parts[2]
-                .replace("if not searching,", "").replace("if searching", "")
-                .replace("<kbd>", "").replace("</kbd>", "")
+                .replace("if not searching,", "")
+                .replace("if searching", "")
+                .replace("<kbd>", "")
+                .replace("</kbd>", "")
                 .replace('+', "-")
-                .replace('↑', "up").replace('↓', "down").replace('←', "left").replace('→', "right")
-                .replace("Page Up", "pageup").replace("Page Down", "pagedown")
+                .replace('↑', "up")
+                .replace('↓', "down")
+                .replace('←', "left")
+                .replace('→', "right")
+                .replace("Page Up", "pageup")
+                .replace("Page Down", "pagedown")
                 .split(" or ")
                 .map(|k| crokey::parse(k.trim()).unwrap())
                 .collect();
@@ -273,7 +272,7 @@ mod tests {
         for (key_combo, _, expected_action) in crate::settings::DEFAULT_KEYMAP {
             // Shift-'?' doesn't need to be in the readme, it's in the default keymap to fix
             // the behavior on Windows.
-            if *key_combo == crokey::key!(shift-'?') {
+            if *key_combo == crokey::key!(shift - '?') {
                 continue;
             }
 
