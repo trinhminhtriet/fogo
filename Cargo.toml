@@ -1,6 +1,6 @@
 [package]
 name = "fogo"
-version = "v0.1.0"
+version = "0.1.0"
 authors = ["Triet Trinh <contact@trinhminhtriet.com>"]
 edition = "2018"
 description = "📂 Fogo: A fast terminal file explorer replacing cd and ls for quick folder navigation."
