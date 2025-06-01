@@ -22,7 +22,7 @@ textwrap = "0.16"
 unicode-segmentation = "1.12"
 crokey = "1.1"
 strum_macros = "0.27"
-strum = { version = "0.26", features = ["derive"] }
+strum = { version = "0.27", features = ["derive"] }
 
 [dependencies.clap]
 version = "4"
